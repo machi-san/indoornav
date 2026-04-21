@@ -6,6 +6,16 @@ SENSOR_PINS = {
     "north_east": {"trig": 22, "echo": 23},
     "north_west": {"trig": 24, "echo": 25},
 }
+# Distance thresholds in centimetres
+CAUTION_DISTANCE = 100  # Approaching warning
+STOP_DISTANCE = 50      # Stop alert
+def check_alert(distance):
+    if distance <= STOP_DISTANCE:
+        return "stop"
+    elif distance <= CAUTION_DISTANCE:
+        return "caution"
+    else:
+        return "clear"
 # tells the Pi to use the BCM pin numbering system (the numbers printed on the board)
 def setup_gpio():
     GPIO.setmode(GPIO.BCM)
