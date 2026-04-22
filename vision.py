@@ -45,3 +45,51 @@ def load_model():
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
     print("Model loaded successfully")
+
+def run_inference(preprocessed_frame):
+    if not AI_AVAILABLE or interpreter is None:
+        return []
+
+    # Feed the preprocessed frame into the model
+    interpreter.set_tensor(input_details[0]['index'], preprocessed_frame)
+
+    # Run the model
+    interpreter.invoke()
+
+    # Extract the three outputs: bounding boxes, classes, confidence scores
+    boxes = interpreter.get_tensor(output_details[0]['index'])[0]
+    classes = interpreter.get_tensor(output_details[1]['index'])[0]
+    scores = interpreter.get_tensor(output_details[2]['index'])[0]
+
+    return boxes, classes, scores
+
+# Minimum confidence to trust a detection
+CONFIDENCE_THRESHOLD = 0.5
+
+# Classes relevant to indoor navigation (COCO dataset labels)
+RELEVANT_CLASSES = {
+    0: "person",
+    56: "chair",
+    57: "couch",
+    59: "bed",
+    60: "dining table",
+    62: "tv",
+    63: "laptop",
+    67: "cell phone",
+    73: "refrigerator",
+}
+
+def filter_detections(boxes, classes, scores):
+    filtered = []
+    for i in range(len(scores)):
+        if scores[i] < CONFIDENCE_THRESHOLD:
+            continue
+        class_id = int(classes[i])
+        if class_id not in RELEVANT_CLASSES:
+            continue
+        filtered.append({
+            "class_name": RELEVANT_CLASSES[class_id],
+            "confidence": float(scores[i]),
+            "box": boxes[i]
+        })
+    return filtered
