@@ -5,6 +5,7 @@
 import pyttsx3
 import queue
 import threading
+import subprocess
 
 # Initialise the text-to-speech engine
 engine = pyttsx3.init()
@@ -20,12 +21,12 @@ def speak(priority, message):
 def process_queue():
     while True:
         priority, message = alert_queue.get()
-        local_engine = pyttsx3.init()
-        local_engine.setProperty('rate', 150)
-        local_engine.setProperty('volume', 1.0)
-        local_engine.say(message)
-        local_engine.runAndWait()
-        local_engine.stop()
+        print(f"Speaking (priority {priority}): {message}")
+        subprocess.run([
+            "powershell", "-Command",
+            f"Add-Type -AssemblyName System.Speech; "
+            f"(New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('{message}')"
+        ])
 
 def start_speech_thread():
     thread = threading.Thread(target=process_queue, daemon=True)
