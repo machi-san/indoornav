@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+from speech import speak, start_speech_thread
 # GPIO pin assignments for each sensor
 SENSOR_PINS = {
     "north":      {"trig": 17, "echo": 27},
@@ -70,11 +71,17 @@ def cleanup():
 
 if __name__ == "__main__":
     setup_gpio()
+    start_speech_thread()
     try:
         while True:
             for sensor_name in SENSOR_PINS:
                 dist = get_distance(sensor_name)
-                print(f"{sensor_name}: {dist} cm")
+                alert_level = check_alert(dist)
+                if alert_level != "clear":
+                    phrase = ALERT_PHRASES[sensor_name][alert_level]
+                    priority = ALERT_PRIORITY[alert_level]
+                    speak(priority, phrase)
+                print(f"{sensor_name}: {dist} cm ({alert_level})")
             time.sleep(0.5)
     except KeyboardInterrupt:
         cleanup()
