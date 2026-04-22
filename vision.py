@@ -27,3 +27,21 @@ def preprocess_frame(frame):
     batched = np.expand_dims(normalised, axis=0).astype(np.float32)
 
     return batched
+# Path to the model file (will exist on the Pi)
+MODEL_PATH = "models/mobilenet_ssd.tflite"
+
+# Initialise the model interpreter (only runs if AI is available)
+interpreter = None
+input_details = None
+output_details = None
+
+def load_model():
+    global interpreter, input_details, output_details
+    if not AI_AVAILABLE:
+        print("Skipping model load - AI not available on this platform")
+        return
+    interpreter = Interpreter(model_path=MODEL_PATH)
+    interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    print("Model loaded successfully")
