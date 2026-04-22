@@ -71,12 +71,10 @@ RELEVANT_CLASSES = {
     0: "person",
     56: "chair",
     57: "couch",
+    58: "potted plant",
     59: "bed",
     60: "dining table",
-    62: "tv",
-    63: "laptop",
-    67: "cell phone",
-    73: "refrigerator",
+    72: "refrigerator",
 }
 
 def filter_detections(boxes, classes, scores):
