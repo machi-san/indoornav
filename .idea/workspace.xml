@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e4845403-c137-4028-92c5-222d83c197b2" name="Changes" comment="Added alert phrases for priority 2 and 3">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="e4845403-c137-4028-92c5-222d83c197b2" name="Changes" comment="unsure">
+      <change afterPath="$PROJECT_DIR$/vision.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,11 +67,20 @@
       <option name="project" value="LOCAL" />
       <updated>1776839968430</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="unsure">
+      <option name="closed" value="true" />
+      <created>1776859236806</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1776859236806</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added alert phrases for priority 2 and 3" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added alert phrases for priority 2 and 3" />
+    <MESSAGE value="unsure" />
+    <option name="LAST_COMMIT_MESSAGE" value="unsure" />
   </component>
 </project>
