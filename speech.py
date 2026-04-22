@@ -20,8 +20,12 @@ def speak(priority, message):
 def process_queue():
     while True:
         priority, message = alert_queue.get()
-        engine.say(message)
-        engine.runAndWait()
+        local_engine = pyttsx3.init()
+        local_engine.setProperty('rate', 150)
+        local_engine.setProperty('volume', 1.0)
+        local_engine.say(message)
+        local_engine.runAndWait()
+        local_engine.stop()
 
 def start_speech_thread():
     thread = threading.Thread(target=process_queue, daemon=True)
