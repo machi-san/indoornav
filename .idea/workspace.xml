@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e4845403-c137-4028-92c5-222d83c197b2" name="Changes" comment="Task 11: preprocess video frame" />
+    <list default="true" id="e4845403-c137-4028-92c5-222d83c197b2" name="Changes" comment="updated relevant classes">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vision.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -81,13 +84,22 @@
       <option name="project" value="LOCAL" />
       <updated>1776860275482</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="updated relevant classes">
+      <option name="closed" value="true" />
+      <created>1776884016489</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1776884016489</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added alert phrases for priority 2 and 3" />
     <MESSAGE value="unsure" />
     <MESSAGE value="Task 11: preprocess video frame" />
-    <option name="LAST_COMMIT_MESSAGE" value="Task 11: preprocess video frame" />
+    <MESSAGE value="updated relevant classes" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated relevant classes" />
   </component>
 </project>

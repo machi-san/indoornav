@@ -91,3 +91,28 @@ def filter_detections(boxes, classes, scores):
             "box": boxes[i]
         })
     return filtered
+
+# Zone boundaries based on horizontal bounding box centre
+LEFT_MAX = 0.33
+AHEAD_MAX = 0.67
+
+def get_zone(box):
+    ymin, xmin, ymax, xmax = box
+    centre_x = (xmin + xmax) / 2
+    if centre_x < LEFT_MAX:
+        return "left"
+    elif centre_x < AHEAD_MAX:
+        return "ahead"
+    else:
+        return "right"
+
+# Priority for AI-detected objects in the ahead zone
+AI_ALERT_PRIORITY = 2
+
+def process_detections(detections):
+    for detection in detections:
+        zone = get_zone(detection["box"])
+        if zone != "ahead":
+            continue
+        phrase = f"{detection['class_name']} ahead"
+        speak(AI_ALERT_PRIORITY, phrase)
