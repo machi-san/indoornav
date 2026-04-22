@@ -1,6 +1,15 @@
 import cv2
 import numpy as np
 from speech import speak
+
+# Try to import the Pi-only AI library; fall back gracefully on Windows
+try:
+    from tflite_runtime.interpreter import Interpreter
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
+    print("Warning: tflite_runtime not available - AI detection disabled (expected on Windows)")
+
 # Model expects 300x300 RGB images with pixel values 0-1
 MODEL_INPUT_SIZE = 300
 
