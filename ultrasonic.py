@@ -9,10 +9,31 @@ SENSOR_PINS = {
 # Distance thresholds in centimetres
 CAUTION_DISTANCE = 100  # Approaching warning
 STOP_DISTANCE = 50      # Stop alert
+# Alert phrases per sensor direction and range
+ALERT_PHRASES = {
+    "north": {
+        "stop":    "Stop, obstacle ahead",
+        "caution": "Caution, obstacle ahead",
+    },
+    "north_west": {
+        "stop":    "Stop, obstacle on your left",
+        "caution": "Caution, obstacle on your left",
+    },
+    "north_east": {
+        "stop":    "Stop, obstacle on your right",
+        "caution": "Caution, obstacle on your right",
+    },
+}
+
+# Priority mapping
+ALERT_PRIORITY = {
+    "stop":    2,
+    "caution": 3,
+}
 def check_alert(distance):
-    if distance <= STOP_DISTANCE:
+    if distance <= STOP_DISTANCE:     #<=50cm
         return "stop"
-    elif distance <= CAUTION_DISTANCE:
+    elif distance <= CAUTION_DISTANCE:       #<=100cm
         return "caution"
     else:
         return "clear"
