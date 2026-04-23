@@ -67,3 +67,25 @@ def process_stair_detection(frame):
     # Fire the alert
     speak(STAIR_ALERT_PRIORITY, "Stairs ahead")
     last_stair_alert_time = current_time
+
+if __name__ == "__main__":
+    import os
+
+    test_folder = "test_images"
+    test_files = sorted(os.listdir(test_folder))
+
+    print(f"Testing stair detection on {len(test_files)} images...\n")
+
+    for filename in test_files:
+        filepath = os.path.join(test_folder, filename)
+        frame = cv2.imread(filepath)
+
+        if frame is None:
+            print(f"  ⚠  Could not load {filename} - skipping")
+            continue
+
+        is_stairs = detect_stairs(frame)
+        verdict = "STAIRS DETECTED" if is_stairs else "no stairs"
+        print(f"  {filename:30s} → {verdict}")
+
+    print("\nDone.")
