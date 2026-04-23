@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import time
 from speech import speak
 
 # Try to import the Pi-only AI library; fall back gracefully on Windows
@@ -109,10 +110,22 @@ def get_zone(box):
 # Priority for AI-detected objects in the ahead zone
 AI_ALERT_PRIORITY = 2
 
+# Rate limiting: minimum seconds between repeat alerts for the same class
+ALERT_COOLDOWN = 3
+
+# Track when each class was last announced
+last_alert_times = {}
+
 def process_detections(detections):
+    current_time = time.time()
     for detection in detections:
         zone = get_zone(detection["box"])
         if zone != "ahead":
             continue
-        phrase = f"{detection['class_name']} ahead"
+        class_name = detection["class_name"]
+        if class_name in last_alert_times:
+            if current_time - last_alert_times[class_name] < ALERT_COOLDOWN:
+                continue
+        phrase = f"{class_name} ahead"
         speak(AI_ALERT_PRIORITY, phrase)
+        last_alert_times[class_name] = current_time
