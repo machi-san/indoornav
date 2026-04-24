@@ -20,9 +20,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "machi-san"
+  }
+}]]></component>
   <component name="GithubDefaultAccount">
     <option name="defaultAccountId" value="6dbd3c9d-ac73-450a-9c2f-133f84350b55" />
   </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/machi-san/indoornav.git",
+    "accountId": "6dbd3c9d-ac73-450a-9c2f-133f84350b55"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
