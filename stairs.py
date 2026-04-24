@@ -9,8 +9,14 @@ HORIZONTAL_TOLERANCE = 10      # Lines within this many degrees of horizontal ar
 EDGE_DETECTION_LOW = 50        # Canny lower threshold
 EDGE_DETECTION_HIGH = 150      # Canny upper threshold
 
+# Clustering filter thresholds
+CLUSTER_SPAN_MAX = 0.4       # Horizontal lines must span less than this fraction of image height
+CLUSTER_POSITION_MIN = 0.5   # Bottommost horizontal line must sit below this fraction of image height
+
 # Priority for stair alerts (highest urgency - fall hazard)
 STAIR_ALERT_PRIORITY = 1
+STAIR_ALERT_COOLDOWN = 3
+last_stair_alert_time = 0
 
 def detect_stairs(frame):
     # Step 1: Convert to greyscale (faster processing, edges only need brightness)
@@ -33,24 +39,39 @@ def detect_stairs(frame):
     if lines is None:
         return False
 
-    # Step 4: Count how many lines are roughly horizontal
-    horizontal_count = 0
+     # Step 4: Collect y-coordinates of roughly horizontal lines
+    horizontal_y_values = []
     for line in lines:
         x1, y1, x2, y2 = line[0]
         # Calculate the angle of the line in degrees
         angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
         # A horizontal line has an angle near 0 (or near 180/-180)
         if abs(angle) < HORIZONTAL_TOLERANCE or abs(abs(angle) - 180) < HORIZONTAL_TOLERANCE:
-            horizontal_count += 1
+                # Store the average y of the two endpoints as the line's position
+                horizontal_y_values.append((y1 + y2) / 2)
 
-    # Step 5: Decide if it's stairs
-    return horizontal_count >= MIN_LINES_FOR_STAIRS
+        # Step 5: Must have enough horizontal lines
+        if len(horizontal_y_values) < MIN_LINES_FOR_STAIRS:
+            return False
 
-# Rate limiting: minimum seconds between repeat stair alerts
-STAIR_ALERT_COOLDOWN = 3
+        # Step 6: Clustering filter - check tightness and position
+        image_height = frame.shape[0]
+        max_y = max(horizontal_y_values)
+        min_y = min(horizontal_y_values)
 
-# Track when stairs were last announced
-last_stair_alert_time = 0
+        span_ratio = (max_y - min_y) / image_height
+        position_ratio = max_y / image_height
+
+        # Tightness: cluster must span less than 40% of image height
+        if span_ratio >= CLUSTER_SPAN_MAX:
+            return False
+
+        # Position: bottommost line must sit in the lower half
+        if position_ratio <= CLUSTER_POSITION_MIN:
+            return False
+
+        # Passed all filters - looks like stairs
+    return True
 
 def process_stair_detection(frame):
     global last_stair_alert_time
