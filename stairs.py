@@ -51,23 +51,26 @@ def detect_stairs(frame):
                 horizontal_y_values.append((y1 + y2) / 2)
 
         # Step 5: Must have enough horizontal lines
-        if len(horizontal_y_values) < MIN_LINES_FOR_STAIRS:
-            return False
+    print(f"    horizontal lines found: {len(horizontal_y_values)}")
+    if len(horizontal_y_values) < MIN_LINES_FOR_STAIRS:
+        return False
 
         # Step 6: Clustering filter - check tightness and position
-        image_height = frame.shape[0]
-        max_y = max(horizontal_y_values)
-        min_y = min(horizontal_y_values)
+    image_height = frame.shape[0]
+    max_y = max(horizontal_y_values)
+    min_y = min(horizontal_y_values)
 
-        span_ratio = (max_y - min_y) / image_height
-        position_ratio = max_y / image_height
+    span_ratio = (max_y - min_y) / image_height
+    position_ratio = max_y / image_height
 
-        # Tightness: cluster must span less than 40% of image height
-        if span_ratio >= CLUSTER_SPAN_MAX:
+    print(f"    span={span_ratio:.2f}, position={position_ratio:.2f}, lines={len(horizontal_y_values)}")
+
+    # Tightness: cluster must span less than 40% of image height
+    if span_ratio >= CLUSTER_SPAN_MAX:
             return False
 
         # Position: bottommost line must sit in the lower half
-        if position_ratio <= CLUSTER_POSITION_MIN:
+    if position_ratio <= CLUSTER_POSITION_MIN:
             return False
 
         # Passed all filters - looks like stairs
