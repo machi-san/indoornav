@@ -79,6 +79,11 @@ This file exists for three reasons:
 - **Why deferred**: Adds chatter risk if objects wobble between zones; v1 favours quietness.
 - **What it improves**: A person moving from "ahead" to "left" within the cooldown would re-announce. Gives the user directional updates for moving objects.
 
+### Object tracking across frames (new entry — V3 tier)
+- **What**: Track individual objects across frames (not just classes), so the system knows "this is the same person I saw in the previous frame, just slightly moved" vs "this is a different person who just entered the scene."
+- **Why deferred**: Significant capability jump beyond v1 or v2 — this is a full computer vision sub-domain (multi-object tracking, MOT). Needs either a tracker library (e.g. SORT, DeepSORT) or custom implementation, plus the processing budget to run it alongside detection on every frame.
+- **What it improves**: Smarter rate limiting. Eliminates redundant alerts about stationary objects without the false-silence risk of pure time-based rate limiting. Also unlocks features like alerting only when new objects enter the scene.
+
 ### Distinct phrasing for ascending vs descending stairs
 - **What**: "Stairs going up" vs "Stairs going down."
 - **Why deferred**: Detection method (Hough) doesn't currently distinguish direction.

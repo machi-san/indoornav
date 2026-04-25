@@ -108,7 +108,8 @@ def get_zone(box):
         return "right"
 
 # Priority for AI-detected objects in the ahead zone
-AI_ALERT_PRIORITY = 2
+AI_ALERT_PRIORITY_AHEAD = 3   # Object directly in walking path
+AI_ALERT_PRIORITY_SIDE = 4    # Object slightly off-centre forward
 
 # Rate limiting: minimum seconds between repeat alerts for the same class
 ALERT_COOLDOWN = 3
@@ -120,12 +121,27 @@ def process_detections(detections):
     current_time = time.time()
     for detection in detections:
         zone = get_zone(detection["box"])
-        if zone != "ahead":
-            continue
         class_name = detection["class_name"]
+
+        # Build the spoken phrase and pick the priority based on zone
+        if zone == "ahead":
+            phrase = f"{class_name} ahead"
+            priority = AI_ALERT_PRIORITY_AHEAD
+        elif zone == "left":
+            phrase = f"{class_name} on your left"
+            priority = AI_ALERT_PRIORITY_SIDE
+        elif zone == "right":
+            phrase = f"{class_name} on your right"
+            priority = AI_ALERT_PRIORITY_SIDE
+        else:
+            # Unexpected zone value - skip this detection
+            continue
+
+        # Rate limit: skip if this class was announced within the cooldown window
         if class_name in last_alert_times:
             if current_time - last_alert_times[class_name] < ALERT_COOLDOWN:
                 continue
-        phrase = f"{class_name} ahead"
-        speak(AI_ALERT_PRIORITY, phrase)
+
+        # Fire the alert and update the timestamp
+        speak(priority, phrase)
         last_alert_times[class_name] = current_time
