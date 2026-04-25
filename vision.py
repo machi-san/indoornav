@@ -107,9 +107,21 @@ def get_zone(box):
     else:
         return "right"
 
-# Priority for AI-detected objects in the ahead zone
-AI_ALERT_PRIORITY_AHEAD = 3   # Object directly in walking path
-AI_ALERT_PRIORITY_SIDE = 4    # Object slightly off-centre forward
+# AI alert priorities (lower number = more urgent)
+# Default for any class not explicitly listed
+AI_ALERT_PRIORITY_DEFAULT = 4
+
+# Per-class priorities for ahead-zone detections
+# Higher urgency reflects unpredictability and lack of mechanical constraints
+CLASS_PRIORITIES_AHEAD = {
+    "person": 3,   # Higher urgency - moves unpredictably, may not see user
+}
+
+# Per-class priorities for side-zone detections
+# All side detections currently default to 4 - distinction is captured in phrasing
+CLASS_PRIORITIES_SIDE = {
+    "person": 4,
+}
 
 # Rate limiting: minimum seconds between repeat alerts for the same class
 ALERT_COOLDOWN = 3
@@ -126,15 +138,14 @@ def process_detections(detections):
         # Build the spoken phrase and pick the priority based on zone
         if zone == "ahead":
             phrase = f"{class_name} ahead"
-            priority = AI_ALERT_PRIORITY_AHEAD
+            priority = CLASS_PRIORITIES_AHEAD.get(class_name, AI_ALERT_PRIORITY_DEFAULT)
         elif zone == "left":
             phrase = f"{class_name} on your left"
-            priority = AI_ALERT_PRIORITY_SIDE
+            priority = CLASS_PRIORITIES_SIDE.get(class_name, AI_ALERT_PRIORITY_DEFAULT)
         elif zone == "right":
             phrase = f"{class_name} on your right"
-            priority = AI_ALERT_PRIORITY_SIDE
+            priority = CLASS_PRIORITIES_SIDE.get(class_name, AI_ALERT_PRIORITY_DEFAULT)
         else:
-            # Unexpected zone value - skip this detection
             continue
 
         # Rate limit: skip if this class was announced within the cooldown window
