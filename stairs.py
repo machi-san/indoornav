@@ -9,14 +9,40 @@ HORIZONTAL_TOLERANCE = 10      # Lines within this many degrees of horizontal ar
 EDGE_DETECTION_LOW = 50        # Canny lower threshold
 EDGE_DETECTION_HIGH = 150      # Canny upper threshold
 
-# Clustering filter thresholds
-CLUSTER_SPAN_MAX = 0.4       # Horizontal lines must span less than this fraction of image height
-CLUSTER_POSITION_MIN = 0.5   # Bottommost horizontal line must sit below this fraction of image height
 
 # Priority for stair alerts (highest urgency - fall hazard)
 STAIR_ALERT_PRIORITY = 1
 STAIR_ALERT_COOLDOWN = 3
 last_stair_alert_time = 0
+
+# ============================================================================
+# STAIR DETECTION - v1 (Hough Transform)
+# ============================================================================
+# Approach: Detect 3+ roughly-horizontal line segments using Hough Transform.
+#
+# Performance on 18-image test set:
+#   - Recall: 100% (all real stairs detected)
+#   - Precision: ~36% (false positives on hallways, bookshelves, blinds,
+#     empty rooms, striped surfaces)
+#
+# Rationale for accepting low precision:
+#   For a safety-critical assistive device, missing a real stair (false
+#   negative) is far more dangerous than a false alarm (false positive).
+#   The user can learn to tolerate occasional incorrect alerts; they cannot
+#   recover from an unannounced fall.
+#
+# Attempted refinement (clustering filter):
+#   Geometric filters on horizontal-line span and position were tested and
+#   abandoned. Diagnostic analysis showed real stair images and confounders
+#   (e.g. blinds_1, stairs_1) produced indistinguishable span/position
+#   values. The discriminating signal lies in the structure of the regions
+#   BETWEEN the horizontal lines (smooth risers vs. cluttered book spines),
+#   not in the geometry of the lines themselves.
+#
+# Future work:
+#   See Stair_Detection_Research_Outline.docx for a full analysis and
+#   proposal for a stair-trained lightweight model.
+# ============================================================================
 
 def detect_stairs(frame):
     # Step 1: Convert to greyscale (faster processing, edges only need brightness)
@@ -39,42 +65,16 @@ def detect_stairs(frame):
     if lines is None:
         return False
 
-     # Step 4: Collect y-coordinates of roughly horizontal lines
-    horizontal_y_values = []
+    # Step 4: Count how many lines are roughly horizontal
+    horizontal_count = 0
     for line in lines:
         x1, y1, x2, y2 = line[0]
-        # Calculate the angle of the line in degrees
         angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
-        # A horizontal line has an angle near 0 (or near 180/-180)
         if abs(angle) < HORIZONTAL_TOLERANCE or abs(abs(angle) - 180) < HORIZONTAL_TOLERANCE:
-                # Store the average y of the two endpoints as the line's position
-                horizontal_y_values.append((y1 + y2) / 2)
+            horizontal_count += 1
 
-        # Step 5: Must have enough horizontal lines
-    print(f"    horizontal lines found: {len(horizontal_y_values)}")
-    if len(horizontal_y_values) < MIN_LINES_FOR_STAIRS:
-        return False
-
-        # Step 6: Clustering filter - check tightness and position
-    image_height = frame.shape[0]
-    max_y = max(horizontal_y_values)
-    min_y = min(horizontal_y_values)
-
-    span_ratio = (max_y - min_y) / image_height
-    position_ratio = max_y / image_height
-
-    print(f"    span={span_ratio:.2f}, position={position_ratio:.2f}, lines={len(horizontal_y_values)}")
-
-    # Tightness: cluster must span less than 40% of image height
-    if span_ratio >= CLUSTER_SPAN_MAX:
-            return False
-
-        # Position: bottommost line must sit in the lower half
-    if position_ratio <= CLUSTER_POSITION_MIN:
-            return False
-
-        # Passed all filters - looks like stairs
-    return True
+    # Step 5: Decide if it's stairs
+    return horizontal_count >= MIN_LINES_FOR_STAIRS
 
 def process_stair_detection(frame):
     global last_stair_alert_time
