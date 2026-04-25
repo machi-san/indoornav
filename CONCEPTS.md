@@ -17,6 +17,7 @@ A running log of programming, engineering, and computer-vision concepts encounte
 * **Graceful degradation** — wrapping imports in `try`/`except` so code runs across platforms without crashing when a platform-specific library (e.g. `tflite\\\_runtime`) isn't installed.
 * **Guard clauses** — early `return` statements that exit a function quickly when conditions aren't met. Keeps the main logic un-indented and readable.
 * **Zero-indexing** — arrays start at index `0`, so the Nth item lives at index `N-1`.
+* **Mocking** - feeding a function with hand-crafted input that simulates what real input would look like, so you can verify the function's logic in isolation.
 
 \---
 
