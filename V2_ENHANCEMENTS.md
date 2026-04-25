@@ -65,6 +65,13 @@ This file exists for three reasons:
 - **Why deferred**: Requires the trained model from above to exist first.
 - **What it improves**: Hybrid approach to balance speed and accuracy. Reduces inference cost compared to running an AI model on every frame.
 
+### Door-trained lightweight model
+- **What**: Purpose-built model (or alternative dataset) for indoor door detection.
+- **Why deferred**: Doors are not a class in the standard COCO 80-class dataset that MobileNet SSD is trained on. The model used in v1 cannot detect doors regardless of how the filter or priority logic is configured.
+- **What it improves**: Restores door detection capability — a meaningful safety class for indoor navigation. A door ahead is mechanically constrained (less urgent than a person) but still represents a collision hazard. Door detection also enables future "passage detection" features (open vs closed door, doorway navigation).
+- **Possible approaches**: (a) Train a small classifier on an indoor dataset that includes doors (e.g. Open Images, ADE20K), (b) Use a different pre-trained model whose label set includes doors, (c) Apply classical CV (rectangle detection) as a v1.5 stopgap.
+- **See also**: Same gap as stair detection — see Stair_Detection_Research_Outline.docx Section 7. The research paper scope could be broadened to "stair- and door-detection for indoor navigation assistance."
+
 ---
 
 ## 🔊 Alert System

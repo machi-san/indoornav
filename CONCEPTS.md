@@ -62,7 +62,8 @@ A running log of programming, engineering, and computer-vision concepts encounte
 * **Multi-criteria / cascade filtering** — stacking filters (3+ lines AND clustered AND evenly spaced) for compounding precision gains without sacrificing recall too badly.
 * **Incremental change, isolated measurement** — change one thing at a time, measure its effect, then change the next thing. Same principle as Git commits.
 * **Scope decisions (v1 vs v2)** — honest calls about what's achievable now vs documented as future work (depth camera, AI stair detection, movement-based rate limiting, sensor fusion).
-* **Robust Statistics -**  Picking measurements that don't get thrown off by outliers
+* **Robust Statistics** - Picking measurements that don't get thrown off by outliers
+* **Premature Optimisation Concern** - looked at "more data structures" and thought "more cost." That's healthy paranoia for embedded systems where memory and CPU are limited.
 
 \---
 
