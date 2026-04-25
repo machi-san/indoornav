@@ -145,3 +145,40 @@ def process_detections(detections):
         # Fire the alert and update the timestamp
         speak(priority, phrase)
         last_alert_times[class_name] = current_time
+
+if __name__ == "__main__":
+    # Start the speech thread so alerts actually get spoken
+    from speech import start_speech_thread
+    start_speech_thread()
+
+    # Test directional cues with mock detections
+    print("Testing directional cues with mock detections...\n")
+
+    # Three mock detections - one in each zone
+    # Box format: [ymin, xmin, ymax, xmax] in normalised coords
+    test_detections = [
+        {
+            "class_name": "person",
+            "confidence": 0.95,
+            "box": [0.3, 0.10, 0.9, 0.30]   # centre_x = 0.20 -> left zone
+        },
+        {
+            "class_name": "chair",
+            "confidence": 0.90,
+            "box": [0.3, 0.40, 0.9, 0.60]   # centre_x = 0.50 -> ahead zone
+        },
+        {
+            "class_name": "door",
+            "confidence": 0.85,
+            "box": [0.3, 0.70, 0.9, 0.90]   # centre_x = 0.80 -> right zone
+        }
+    ]
+
+    # Process the mock detections - each should fire a different alert
+    process_detections(test_detections)
+
+    # Give the speech thread a moment to actually speak before the program exits
+    import time
+    time.sleep(8)
+
+    print("\nDone.")
