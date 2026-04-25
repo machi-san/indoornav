@@ -6,9 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e4845403-c137-4028-92c5-222d83c197b2" name="Changes" comment="updated relevant classes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CONCEPTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/CONCEPTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/V2_ENHANCEMENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/V2_ENHANCEMENTS.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vision.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/speech.py" beforeDir="false" afterPath="$PROJECT_DIR$/speech.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,7 +59,29 @@
     "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.vision">
+  <component name="RunManager" selected="Python.speech">
+    <configuration name="speech" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="indoornav" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/speech.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="stairs" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="indoornav" />
       <option name="ENV_FILES" value="" />
@@ -108,6 +128,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.speech" />
         <item itemvalue="Python.vision" />
         <item itemvalue="Python.stairs" />
       </list>

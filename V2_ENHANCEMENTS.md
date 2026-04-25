@@ -101,6 +101,12 @@ This file exists for three reasons:
 - **Why deferred**: Requires user testing data to inform the design.
 - **What it improves**: Personalised alerting reduces cognitive load and user fatigue.
 
+### Replace Windows PowerShell speech workaround with pyttsx3 on Pi
+- **What**: The current `process_queue()` function in `speech.py` uses a Windows PowerShell `SpeechSynthesizer` subprocess as a development workaround for a pyttsx3 bug encountered on Windows. When the Raspberry Pi arrives, this should be replaced with native pyttsx3 calls (`engine.say()` + `engine.runAndWait()`).
+- **Why deferred**: The bug only manifests on Windows; pyttsx3 works correctly on Linux/Pi. The PowerShell stopgap allowed development to continue without blocking on hardware.
+- **What it improves**: Cross-platform consistency, removes a Windows-specific dependency, activates the SPEECH_RATE and SPEECH_VOLUME constants that are currently set on the (unused) pyttsx3 engine. PS_RATE and PS_VOLUME constants become removable.
+- **Trigger**: Action this when the Raspberry Pi is set up and audio output is verified working with pyttsx3.
+
 ---
 
 ## 🔗 Sensor Fusion
