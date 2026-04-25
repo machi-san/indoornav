@@ -73,5 +73,17 @@ A running log of programming, engineering, and computer-vision concepts encounte
 
 \---
 
+### 🧪 Empirical engineering & dead-ends
+
+- **Hough fragmentation** — Probabilistic Hough Transform returns *line segments*, not visible lines. A single visible edge in an image often gets broken into dozens or hundreds of short segments. Counting "lines found" can wildly overstate the visible structure.
+
+- **The discriminator might not be where you think it is** — When attempting to filter stairs from confounders (bookshelves, blinds, hallways), the geometric properties of horizontal lines (span, position) overlapped completely between true positives and false positives. The real distinguishing signal lay in the regions *between* the lines (smooth risers vs. cluttered book spines), not in the lines themselves.
+
+- **Dead-ends as data** — A filter that fails to discriminate is informative. The clustering-filter experiment proved empirically that simple geometric rules cannot solve stair detection, which justifies escalating to a different approach (purpose-trained model) rather than tuning thresholds indefinitely.
+
+- **Knowing when to stop** — Persistence and excellence are different things. Choosing to ship a v1 with documented limitations and pivot to a research-paper framing produces better engineering outcomes than dogged threshold-tuning. This is a real engineering skill, not a concession.
+
+\---
+
 *Document maintained as part of the Indoor Navigation for Visually Impaired capstone project. Updated as new concepts are encountered.*
 

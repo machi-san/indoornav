@@ -642,4 +642,19 @@ if __name__ == "__main__":
 
 ---
 
+### Task 12 — Block 4: The Clustering Filter Experiment (Reverted)
+
+**What was attempted:** Two additional checks were added to `detect_stairs()` to reduce false positives — a **span test** (horizontal lines must span less than 40% of image height) and a **position test** (bottommost line must sit in the lower half of the image).
+
+**Why it was reverted:** Diagnostic instrumentation revealed two problems:
+- Hough returned 60–500+ horizontal "lines" per image due to edge fragmentation, not the few dozen visible step edges.
+- Real stair images consistently produced span ratios of 0.82–1.00 because the visible step edges genuinely stretch across most of the image height (top step is far/high, bottom step is close/low).
+- Span and position values for true stairs were indistinguishable from those of false positives like blinds, bookshelves, and hallways.
+
+**Why it's worth documenting anyway:** The dead-end produced two genuine insights — (1) the discriminating signal between stairs and confounders lies in the *regions between* horizontal lines, not in the geometry of the lines themselves; (2) the geometric-filter approach has a fundamental ceiling that further parameter tuning cannot break through. These insights now anchor a planned research paper on stair-trained lightweight models.
+
+**Code state:** `detect_stairs()` was rolled back to the pre-cluster v1 (3+ horizontal lines = stairs). Constants `CLUSTER_SPAN_MAX` and `CLUSTER_POSITION_MIN` were removed. A docstring-style comment block above the function documents the v1 trade-offs and the abandoned experiment.
+
+---
+
 *Document maintained as part of the Indoor Navigation for Visually Impaired capstone project. Updated as new code is written.*
