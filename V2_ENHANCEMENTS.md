@@ -170,6 +170,16 @@ This file exists for three reasons:
 - **What it improves**: Forward-compatibility — the moment additional shared state is added (e.g. `latest_frame_timestamp`, `latest_frame_metadata`), grouped reads/writes need a lock to avoid mismatched data. Also improves cross-platform reliability (PyPy and other Python implementations may not provide CPython's GIL atomicity guarantees).
 - **Trigger**: Action this when (a) hardware testing reveals any frame-related glitches, OR (b) any additional shared state is added to `main.py`, whichever comes first.
 
+### Replace shutdown_flag boolean with threading.Event for instant shutdown
+- **What**: Replace the `shutdown_flag = False` module-level boolean in `main.py` with a `threading.Event` object. Thread loops would call `event.wait(timeout)` instead of `time.sleep(timeout)`, allowing immediate wake-up on shutdown.
+- **Why deferred**: A plain boolean is correct (CPython GIL atomicity guarantee) but causes up to ~0.5s shutdown lag on ultrasonic, and longer on AI threads mid-inference. Acceptable for v1 prototype.
+- **What it improves**: Instant, clean shutdown when Ctrl+C is hit. Better user experience and clearer demo behaviour.
+
+### Replace print() with proper logging framework
+- **What**: Replace ad-hoc `print()` calls across all modules with Python's `logging` framework, configured with a thread-safe handler.
+- **Why deferred**: `print()` works for v1 development. Interleaved output from multiple threads is cosmetically messy but doesn't affect functionality.
+- **What it improves**: Clean log output even with concurrent threads. Configurable log levels (debug/info/warning/error). Optional file output for post-run analysis. Standard practice for any production system.
+
 ---
 
 ## 🔑 Pattern Summary
