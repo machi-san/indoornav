@@ -69,9 +69,12 @@ def get_distance(sensor_name):
 def cleanup():
     GPIO.cleanup()
 
-if __name__ == "__main__":
+
+def ultrasonic_loop():
+    """Main ultrasonic sensor loop. Reads all sensors in turn,
+    fires alerts if obstacles detected, and prints distances.
+    Designed to run as a thread from main.py, or standalone for testing."""
     setup_gpio()
-    start_speech_thread()
     try:
         while True:
             for sensor_name in SENSOR_PINS:
@@ -85,3 +88,8 @@ if __name__ == "__main__":
             time.sleep(0.5)
     except KeyboardInterrupt:
         cleanup()
+
+
+if __name__ == "__main__":
+    start_speech_thread()
+    ultrasonic_loop()
