@@ -4,7 +4,7 @@ import cv2
 
 from speech import start_speech_thread
 # ultrasonic_loop is imported inside main() conditionally, since RPi.GPIO would crash on Windows
-from vision import process_detections, run_inference, filter_detections, preprocess_frame, load_model
+from vision import process_detections, run_inference, filter_detections, preprocess_frame, load_model, AI_AVAILABLE
 from stairs import process_stair_detection
 
 # ============================================================================
@@ -69,14 +69,12 @@ def camera_loop():
 # ============================================================================
 
 def ai_loop():
-    """Continuously runs object detection on the latest frame.
-    Reads from latest_frame, runs MobileNet SSD inference, fires alerts."""
-    global interpreter, labels
+    # Trigger model loading inside vision.py (sets module-level globals there)
+    load_model()
 
-    # Load the model once at thread startup
-    interpreter, labels = load_model()
-    if interpreter is None:
-        print("ERROR: Could not load AI model. Exiting AI thread.")
+    # Skip running if AI isn't available on this platform
+    if not AI_AVAILABLE:
+        print("AI thread exiting - model not available on this platform.")
         return
 
     print("AI thread ready.")
@@ -92,7 +90,7 @@ def ai_loop():
 
         # Run the full AI pipeline
         input_tensor = preprocess_frame(frame)
-        boxes, classes, scores = run_inference(interpreter, input_tensor)
+        boxes, classes, scores = run_inference(input_tensor)
         detections = filter_detections(boxes, classes, scores)
         process_detections(detections)
 
