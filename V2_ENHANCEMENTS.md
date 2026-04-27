@@ -164,6 +164,12 @@ This file exists for three reasons:
 - **Why deferred**: Edge cases not yet observed in testing.
 - **What it improves**: Robustness in real-world conditions (pocket lint, body brushing, motion blur).
 
+### Add threading lock around shared frame buffer
+- **What**: Wrap the shared `latest_frame` variable in `main.py` with a `threading.Lock` to serialise read/write access between the camera producer thread and the AI/stairs consumer threads.
+- **Why deferred**: CPython's GIL guarantees that single-variable assignments are atomic, so for v1's single-variable shared state (`latest_frame` only), no race condition can occur in practice. A lock would add complexity without solving a real problem.
+- **What it improves**: Forward-compatibility — the moment additional shared state is added (e.g. `latest_frame_timestamp`, `latest_frame_metadata`), grouped reads/writes need a lock to avoid mismatched data. Also improves cross-platform reliability (PyPy and other Python implementations may not provide CPython's GIL atomicity guarantees).
+- **Trigger**: Action this when (a) hardware testing reveals any frame-related glitches, OR (b) any additional shared state is added to `main.py`, whichever comes first.
+
 ---
 
 ## 🔑 Pattern Summary

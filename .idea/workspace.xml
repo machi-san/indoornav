@@ -5,8 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e4845403-c137-4028-92c5-222d83c197b2" name="Changes" comment="updated relevant classes">
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/speech.py" beforeDir="false" afterPath="$PROJECT_DIR$/speech.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CONCEPTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/CONCEPTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/V2_ENHANCEMENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/V2_ENHANCEMENTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ultrasonic.py" beforeDir="false" afterPath="$PROJECT_DIR$/ultrasonic.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
