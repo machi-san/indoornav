@@ -18,6 +18,9 @@ A running log of programming, engineering, and computer-vision concepts encounte
 * **Guard clauses** — early `return` statements that exit a function quickly when conditions aren't met. Keeps the main logic un-indented and readable.
 * **Zero-indexing** — arrays start at index `0`, so the Nth item lives at index `N-1`.
 * **Mocking** - feeding a function with hand-crafted input that simulates what real input would look like, so you can verify the function's logic in isolation.
+* **Global Interpreter Lock(GIL)** - affects how threads work. In short: only one Python thread can execute Python code at a time, even if you have 4 threads on a 4-core CPU
+* **Race condition** - happens if the camera thread is mid-write when a reader grabs the frame? You could get a half-old, half-new frame which implies corrupted data.
+* **Threading lock** - a mechanism that says "while I'm writing, no one can read; while someone's reading, no one can write." It serialises access to the shared resource.
 
 \---
 
