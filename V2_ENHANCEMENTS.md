@@ -35,6 +35,17 @@ This file exists for three reasons:
 - **Why deferred**: Belt-clip chosen for v1 simplicity of build.
 - **What it improves**: Camera angle no longer needs downward tilt. Better coverage for head-height obstacles (low-hanging signs, cabinet edges, branches). Worse for floor-level detail.
 
+### IMU integration for user directional awareness
+- **What**: Integrate the BNO055 IMU (gyroscope + magnetometer via I2C) to provide the system with awareness of the device's own orientation and motion, independent of environmental conditions. Hardware was procured in Phase 1 but not wired into the v1 prototype.
+- **Why deferred**: The IMU has no consumer in the v1 alert pipeline — integrating it would require designing and testing new user-facing behaviour on top of wiring and library work. With software development complete and the capstone deadline at end of May, deferring protected the report deliverable and avoided introducing a new testing surface late in the project.
+- **What it improves**: Adds a sensor modality that is completely indifferent to environmental conditions (glass, smoke, darkness, lighting changes) — unlike the camera and ultrasonic sensors, which all have environmental failure modes. Unlocks several possible user-facing features (see below), any of which would meaningfully improve indoor navigation for the user.
+- **Possible v2 features unlocked**:
+  - **Heading drift warning** — detect when the user is veering off a straight-line path and alert them ("you're veering left"). Particularly valuable for visually impaired users who can drift without realising. Needs calibration and threshold tuning.
+  - **Relative turn detection** — announce when the user has completed a significant turn ("you've turned 90 degrees right"). Helps the user track which corridor or room they are in.
+  - **Cardinal heading announcements** — speak the current compass heading on demand or at intervals. Useful in combination with a known indoor map.
+  - **Fall detection** — detect a sudden acceleration spike and fire a Priority 1 alert. Genuine safety feature, would require careful tuning to avoid false positives from normal walking.
+- **Trade-offs**: Adds a third sensor consumer thread to `main.py`, which is architecturally straightforward but adds one more thing to maintain. Magnetometer needs figure-of-eight calibration on first use, which is a real UX concern for a deployed device.
+- **Trigger**: Action this when v2 development begins, OR earlier if any of the v2 features above become priorities for user testing.
 ---
 
 ## 🤖 AI and Detection
