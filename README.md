@@ -8,7 +8,7 @@ A real-time edge AI system that combines object detection, classical computer vi
 
 ## 📖 Project Overview
 
-Designed for a visually impaired user wearing a chest-mounted Raspberry Pi with a camera and ultrasonic sensors. The system processes the environment in real time and delivers spoken alerts prioritised by urgency:
+Designed for a visually impaired user wearing a belt clip Raspberry Pi with a camera and ultrasonic sensors. The system processes the environment in real time and delivers spoken alerts prioritised by urgency:
 
 | Priority | Alert Type | Example |
 |----------|-----------|---------|
@@ -41,6 +41,7 @@ The codebase is split into modular files, each handling one concern:
 | `ultrasonic.py` | Distance sensor reading and threshold-based alerts |
 | `vision.py` | AI inference pipeline (preprocess → detect → filter → announce) |
 | `stairs.py` | Classical CV stair detection (Hough Transform + clustering filters) |
+| `main.py` | Shared AI/Stairs thread
 
 ---
 
