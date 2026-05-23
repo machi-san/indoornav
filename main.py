@@ -1,6 +1,7 @@
 import threading
 import time
 import cv2
+import state
 
 from speech import start_speech_thread
 # ultrasonic_loop is imported inside main() conditionally, since RPi.GPIO would crash on Windows
@@ -15,8 +16,7 @@ from stairs import process_stair_detection
 # needed for v1. See V2_ENHANCEMENTS.md for forward-compatibility notes.
 latest_frame = None
 
-# Flag to signal all threads to stop. Set True when user hits Ctrl+C.
-shutdown_flag = False
+
 
 
 
@@ -42,7 +42,7 @@ def camera_loop():
 
     if USE_MOCK_CAMERA:
         # Development mode - feed mock black frames at ~30fps
-        while not shutdown_flag:
+        while not state.shutdown_flag:
             latest_frame = get_mock_frame()
             time.sleep(0.033)   # ~30 frames per second
     else:
@@ -79,7 +79,7 @@ def ai_loop():
 
     print("AI thread ready.")
 
-    while not shutdown_flag:
+    while not state.shutdown_flag:
         # Skip if no frame is available yet
         if latest_frame is None:
             time.sleep(0.05)
@@ -106,7 +106,7 @@ def stairs_loop():
     Reads from latest_frame, runs Hough-based detection, fires Priority 1 alerts."""
     print("Stairs thread ready.")
 
-    while not shutdown_flag:
+    while not state.shutdown_flag:
         # Skip if no frame is available yet
         if latest_frame is None:
             time.sleep(0.05)
@@ -127,7 +127,7 @@ def stairs_loop():
 
 def main():
     """Start all threads and wait for shutdown signal."""
-    global shutdown_flag
+
 
     print("=" * 60)
     print("Indoor Navigation System - starting up")
@@ -169,7 +169,7 @@ def main():
             time.sleep(1)
     except KeyboardInterrupt:
         print("\nShutdown signal received. Stopping threads...")
-        shutdown_flag = True
+        state.shutdown_flag = True
         # Give threads a moment to notice the flag and exit cleanly
         time.sleep(1)
         print("Shutdown complete.")
@@ -177,5 +177,5 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+
 #End-to-End test 1 successful
