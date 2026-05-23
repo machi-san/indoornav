@@ -20,6 +20,12 @@ This file exists for three reasons:
 - **What it improves**: Allows true "left/right" zone semantics rather than "slight left/right." Side detections become genuinely peripheral rather than just-off-centre forward detections.
 - **Trade-off**: Edge fisheye distortion may slightly reduce object detection accuracy at the periphery.
 
+### Portable power integration
+- **What**: Replace the official Pi 5 USB-C mains adapter with a portable power solution suitable for mobile, untethered operation. The hardware design currently relies on a tethered wall adapter for v1.
+- **Why deferred**: The Pi 5 requires a 5V/5A USB-C Power Delivery supply, and reliably sourcing a portable battery meeting this specification within the project's cost and form-factor constraints proved impractical for v1. The official adapter was adopted to guarantee stable power during prototype testing.
+- **What it improves**: Enables genuine mobile, wearable operation — completing the belt-clip form factor's intended use case. Required for any meaningful field testing, user studies, or real-world deployment scenarios.
+- **Trigger**: Action this when a suitable USB-C PD-compliant battery becomes available within budget, OR when field testing is planned.
+
 ### Depth camera
 - **What**: RGB-D, time-of-flight, or structured-light camera providing per-pixel distance data.
 - **Why deferred**: Cost, weight, and processing budget all incompatible with v1 prototype constraints.
