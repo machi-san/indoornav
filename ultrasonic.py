@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import state
 from speech import speak, start_speech_thread
 # GPIO pin assignments for each sensor
 SENSOR_PINS = {
@@ -76,7 +77,7 @@ def ultrasonic_loop():
     Designed to run as a thread from main.py, or standalone for testing."""
     setup_gpio()
     try:
-        while True:
+        while not state.shutdown_flag:
             for sensor_name in SENSOR_PINS:
                 dist = get_distance(sensor_name)
                 alert_level = check_alert(dist)
@@ -86,7 +87,7 @@ def ultrasonic_loop():
                     speak(priority, phrase)
                 print(f"{sensor_name}: {dist} cm ({alert_level})")
             time.sleep(0.5)
-    except KeyboardInterrupt:
+    finally:
         cleanup()
 
 
