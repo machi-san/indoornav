@@ -93,3 +93,46 @@ sudo apt install -y libopenblas-dev
 NumPy and OpenCV detect whichever BLAS library is present at install time, so the swap is transparent to user code.
 
 **Related:** `libtiff5` is also unavailable on newer Bookworm and follows the same pattern. Use `libtiff6` instead — confirmed working as a drop-in replacement.
+
+## `pip install -r requirements.txt` fails on Pi with `pywin32` error
+
+**Symptom:** Running `pip install -r requirements.txt` on the Pi fails with:
+**Diagnosis:** `pywin32` is a Windows-only package providing Python bindings to the Windows API. It has no Linux equivalent. The `requirements.txt` file was generated via `pip freeze` on a Windows dev machine, which captures every installed package including platform-specific transitive dependencies.
+
+**Fix (quick):** Edit `requirements.txt`, remove the `pywin32` line, retry the install.
+
+**Fix (proper):** Install project dependencies explicitly rather than relying on `pip freeze` output:
+```bash
+pip install opencv-python pyttsx3 numpy tflite-runtime RPi.GPIO adafruit-circuitpython-bno055
+```
+
+**Lesson:** `pip freeze` is brittle for cross-platform projects. For projects that deploy to a different OS than they're developed on, requirements should be manually curated to include only the packages the code actually imports.
+
+## `tflite-runtime` install fails on Pi 5 with Bookworm and Python 3.13
+
+**Symptom:** Running `pip install tflite-runtime` on the Pi fails with:
+**Diagnosis:** `tflite-runtime` on PyPI does not publish wheels for Python 3.13. The latest available wheels are for Python 3.11/3.12 only. Raspberry Pi OS Bookworm ships with Python 3.13 by default, so pip finds no compatible distribution and refuses to install.
+
+The package is also no longer actively maintained by Google in this form — it has been superseded by `ai-edge-litert` as part of Google's LiteRT (renamed TensorFlow Lite) initiative.
+
+**Fix:** Switch to `ai-edge-litert`, which is the modern successor and does publish Python 3.13 aarch64 wheels.
+
+```bash
+pip install ai-edge-litert
+```
+
+Then update the Interpreter import in `vision.py`:
+
+```python
+# Before
+from tflite_runtime.interpreter import Interpreter
+
+# After
+from ai_edge_litert.interpreter import Interpreter
+```
+
+The `Interpreter` API is identical — `allocate_tensors()`, `get_input_details()`, `set_tensor()`, `invoke()`, `get_tensor()` all work the same way. The `.tflite` model file itself does not need to be regenerated; it loads identically under both libraries.
+
+**Why this happens:** Google's transition from "TensorFlow Lite" to "LiteRT" branding (and the associated repo move from `tensorflow/tensorflow` to `google-ai-edge/LiteRT`) has left the legacy `tflite-runtime` package without Python 3.13 builds. New development happens in `ai-edge-litert`.
+
+**Lesson:** When a package fails to install with "no matching distribution," check the package's PyPI page for available wheels (`pip index versions <package>` or look at the PyPI Files tab in a browser). If no Python 3.13 wheels exist, the package may have been superseded — search for the modern equivalent rather than downgrading Python.
