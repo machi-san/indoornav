@@ -6,8 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e4845403-c137-4028-92c5-222d83c197b2" name="Changes" comment="updated relevant classes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vision.py" beforeDir="false" afterPath="$PROJECT_DIR$/vision.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +60,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;
   }
 }</component>
-  <component name="RunManager" selected="Python.ultrasonic">
+  <component name="RunManager" selected="Python.vision">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="indoornav" />
       <option name="ENV_FILES" value="" />
@@ -175,10 +173,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.ultrasonic" />
         <item itemvalue="Python.vision" />
-        <item itemvalue="Python.main" />
         <item itemvalue="Python.speech" />
+        <item itemvalue="Python.main" />
+        <item itemvalue="Python.ultrasonic" />
         <item itemvalue="Python.stairs" />
       </list>
     </recent_temporary>
@@ -186,7 +184,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-401cc9104683-e2d783800521-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-251.29188.22" />
+        <option value="bundled-python-sdk-2c5460a6694d-e2d783800521-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-251.29188.40" />
       </set>
     </attachedChunks>
   </component>
