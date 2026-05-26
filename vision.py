@@ -3,13 +3,22 @@ import numpy as np
 import time
 from speech import speak
 
-# Try to import the Pi-only AI library; fall back gracefully on Windows
+# Platform-conditional TFLite import:
+# - Windows (mock-mode dev): tflite_runtime ships wheels for Python <=3.12
+# - Linux/Pi (deployment): ai_edge_litert is the modern successor, ships Python 3.13 wheels
+# The Interpreter API is identical between the two libraries.
+# If neither is available, AI detection degrades gracefully.
+import platform
+
 try:
-    from tflite_runtime.interpreter import Interpreter
+    if platform.system() == "Windows":
+        from tflite_runtime.interpreter import Interpreter
+    else:
+        from ai_edge_litert.interpreter import Interpreter
     AI_AVAILABLE = True
 except ImportError:
     AI_AVAILABLE = False
-    print("Warning: tflite_runtime not available - AI detection disabled (expected on Windows)")
+    print("Warning: TFLite interpreter not available - AI detection disabled")
 
 # Model expects 300x300 RGB images with pixel values 0-1
 MODEL_INPUT_SIZE = 300
