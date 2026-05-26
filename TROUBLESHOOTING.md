@@ -77,3 +77,19 @@ The faster diagnostic path is **from the device outward**:
 Most "the network is broken" symptoms turn out to be device-side issues that look like network problems from the outside. Checking the device first eliminates the most likely causes quickly.
 
 This requires temporary direct access to the device (monitor + keyboard, or a console cable). Worth doing for first-time bring-up even if the long-term plan is fully headless.
+
+## Package `libatlas-base-dev` not found on Pi OS Bookworm
+
+**Symptom:** `sudo apt install libatlas-base-dev` fails with:
+
+**Diagnosis:** `libatlas-base-dev` has been superseded on newer Pi OS Bookworm releases. The package was removed from the standard repositories in favour of OpenBLAS.
+
+**Fix:** Use `libopenblas-dev` instead, which provides the same kind of optimised linear algebra routines that numpy and opencv depend on:
+
+```bash
+sudo apt install -y libopenblas-dev
+```
+
+NumPy and OpenCV detect whichever BLAS library is present at install time, so the swap is transparent to user code.
+
+**Related:** `libtiff5` is also unavailable on newer Bookworm and follows the same pattern. Use `libtiff6` instead — confirmed working as a drop-in replacement.
