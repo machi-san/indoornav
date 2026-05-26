@@ -136,3 +136,12 @@ The `Interpreter` API is identical — `allocate_tensors()`, `get_input_details(
 **Why this happens:** Google's transition from "TensorFlow Lite" to "LiteRT" branding (and the associated repo move from `tensorflow/tensorflow` to `google-ai-edge/LiteRT`) has left the legacy `tflite-runtime` package without Python 3.13 builds. New development happens in `ai-edge-litert`.
 
 **Lesson:** When a package fails to install with "no matching distribution," check the package's PyPI page for available wheels (`pip index versions <package>` or look at the PyPI Files tab in a browser). If no Python 3.13 wheels exist, the package may have been superseded — search for the modern equivalent rather than downgrading Python.
+
+##Switch from MobileNet SSD to EfficientDet-Lite0 for Pi deployment
+
+- MODEL_INPUT_SIZE: 300 -> 320
+- MODEL_PATH: mobilenet_ssd.tflite -> efficientdet_lite0.tflite
+- preprocess_frame: removed float normalisation (model expects uint8)
+- RELEVANT_CLASSES: updated from COCO-80 to COCO-90 class IDs
+
+Original MobileNet SSD float32 model proved difficult to source in a Python 3.13 / ai-edge-litert compatible form. EfficientDet-Lite0 is the modern, well-supported successor with a standard 4-output format that matches the existing inference code structure.
