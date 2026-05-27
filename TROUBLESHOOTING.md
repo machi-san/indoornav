@@ -145,3 +145,86 @@ The `Interpreter` API is identical — `allocate_tensors()`, `get_input_details(
 - RELEVANT_CLASSES: updated from COCO-80 to COCO-90 class IDs
 
 Original MobileNet SSD float32 model proved difficult to source in a Python 3.13 / ai-edge-litert compatible form. EfficientDet-Lite0 is the modern, well-supported successor with a standard 4-output format that matches the existing inference code structure.
+
+## `RPi.GPIO` fails on Pi 5 with "Cannot determine SOC peripheral base address"
+
+**Symptom:** Running any code that uses `RPi.GPIO` (e.g., `python3 ultrasonic.py`) on the Pi 5 fails with:
+
+```
+RuntimeError: Cannot determine SOC peripheral base address
+```
+
+**Diagnosis:** The classic `RPi.GPIO` library was written for the Pi 1 through Pi 4, which used a Broadcom SoC for direct GPIO control. The Pi 5 introduces a new chip called **RP1** that handles GPIO and peripherals separately from the main SoC. `RPi.GPIO` doesn't know how to address RP1, so it errors when trying to find the GPIO registers.
+
+**Fix:** Use the `rpi-lgpio` shim package, which provides a drop-in `RPi.GPIO`-compatible API but talks to RP1 via `lgpio` underneath. No code changes needed.
+
+If `rpi-lgpio` is already installed in the venv (it's bundled by default in newer Pi OS images), uninstall the real `RPi.GPIO` so the shim takes over the import:
+
+```bash
+pip uninstall RPi.GPIO -y
+```
+
+Verify only `rpi-lgpio` remains:
+
+```bash
+pip list | grep -i gpio
+```
+
+Should show `rpi-lgpio` and `lgpio` but NOT `RPi.GPIO`. After this, code that imports `RPi.GPIO` actually uses `rpi-lgpio` transparently.
+
+**Why this design works:** Python's import system finds the first package matching the import name. `rpi-lgpio` registers itself as providing the `RPi.GPIO` namespace, so as long as the real `RPi.GPIO` package isn't installed alongside it, `import RPi.GPIO` resolves to the shim.
+
+**Lesson:** When porting GPIO code from older Pis to the Pi 5, the library swap is mandatory. The shim approach avoids rewriting code while still gaining Pi 5 compatibility. Worth checking the GPIO library version compatibility early on any new Pi generation.
+
+---
+
+## Breadboard rows run horizontally, NOT vertically
+
+**Symptom:** Wiring follows what looks like a sensible layout — VCC, Trig, Echo, GND in adjacent columns; resistors and wires arranged "down a column" to make connections — but powering on the Pi triggers a brownout (red blinking LED, Pi refuses to boot).
+
+**Diagnosis:** A breadboard's internal connections are organised by **row**, not by column. Each row has two independent groups of holes:
+- Left group: columns a, b, c, d, e are all connected together within that single row
+- Right group: columns f, g, h, i, j are all connected together within that single row
+- Rows are NOT connected to each other through shared column letters
+
+If a sensor with four pins (VCC, Trig, Echo, GND) is plugged in across columns a, b, c, d **all in the same row**, then all four pins are shorted together — including VCC directly to GND. This creates a dead short that draws excessive current the moment power is applied, causing the Pi's protective circuitry to brown out.
+
+**Fix:** Orient the sensor so each pin lands in a **different row**, with each pin sharing its row's a-e group with whatever it needs to connect to (jumpers, resistor leads, etc.).
+
+Correct layout for a 4-pin sensor:
+```
+Row 1, col a: VCC pin  | Row 1, col b: jumper to + rail
+Row 2, col a: Trig pin | Row 2, col b: jumper to Pi GPIO
+Row 3, col a: Echo pin | Row 3, col b: 1kΩ resistor lead
+Row 4, col a: GND pin  | Row 4, col b: jumper to − rail
+```
+
+The voltage divider's "junction" is also one row's a-e group — both resistor leads (in different rows) terminate in the junction row, and the Pi wire connects to it there.
+
+**Quick mental model:**
+- To connect two things electrically: put them in the **same row, same side** (a-e together, or f-j together)
+- To place a component "between" two electrical points: span its two leads across two different rows
+- Power rails (+ red, − blue) along the long edges run horizontally end-to-end as their own independent groups
+
+**Lesson:** Breadboard layout is fundamentally row-oriented. The column letters (a-j) are just position labels within each row, not electrical groups across the board. Always think "which row group does this connect to," not "which column does this run down." This is the most common first-time breadboard mistake — easy to miss until you wire a component that creates a short.
+
+## Intermittent sensor hang — bent resistor lead in voltage divider
+
+**Symptom:** A wired HC-SR04 sensor causes `python3 ultrasonic.py` to hang inside `get_distance()`, specifically in the `while GPIO.input(echo) == 1:` loop. Wiring visually appears correct. The same sensor unit works when moved to a different physical position; the same wiring position fails with different sensor units. Symptoms appear inconsistent across power cycles.
+
+**Diagnosis:** A resistor lead in the voltage divider was bent at a slight angle, causing intermittent contact with the breadboard hole. Sometimes the lead made electrical contact (and the sensor worked), sometimes it didn't (and the echo line floated, causing the GPIO read to wait forever).
+
+This is classic **intermittent connection** behaviour — among the hardest hardware bugs to diagnose because:
+- Re-seating the wires can temporarily fix the contact (giving false confidence)
+- Swapping components can change which connection happens to be making contact
+- The same setup can work for minutes, then fail, then work again
+
+**Fix:** Pull the bent resistor out, straighten the lead so it's perpendicular to the body of the resistor, push it back in firmly. Verify visually that the resistor is sitting flush against the breadboard, not at an angle.
+
+**Lesson:** When debugging an intermittent hardware failure:
+1. Visually inspect every connection at eye level — anything sticking up at an angle is suspect
+2. Re-seat all wires methodically, one at a time
+3. Don't assume the failure is in the most recently-added component — older connections can degrade
+4. Component swap tests are diagnostic only if the wiring is reliable; otherwise the test results are noise
+
+Resistor leads, jumper wire male ends, and sensor pins all have the same failure mode: thin metal that flexes and can sit in a hole without contacting the metal strip inside. Always push firmly until flush.
