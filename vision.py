@@ -21,24 +21,23 @@ except ImportError:
     print("Warning: TFLite interpreter not available - AI detection disabled")
 
 # Model expects 300x300 RGB images with pixel values 0-1
-MODEL_INPUT_SIZE = 300
+MODEL_INPUT_SIZE = 320
 
 def preprocess_frame(frame):
-    # Step 1: Resize to 300x300
+    # Step 1: Resize to model's expected input size
     resized = cv2.resize(frame, (MODEL_INPUT_SIZE, MODEL_INPUT_SIZE))
 
-    # Step 2: Convert BGR to RGB
+    # Step 2: Convert BGR (OpenCV default) to RGB (model expectation)
     rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
 
-    # Step 3: Normalise pixel values to 0-1
-    normalised = rgb / 255.0
-
-    # Step 4: Add a batch dimension (the model expects a batch of images)
-    batched = np.expand_dims(normalised, axis=0).astype(np.float32)
+    # Step 3: Add a batch dimension. Model expects uint8 input (0-255),
+    # not normalised floats - so no division by 255 here.
+    batched = np.expand_dims(rgb, axis=0).astype(np.uint8)
 
     return batched
+
 # Path to the model file (will exist on the Pi)
-MODEL_PATH = "models/mobilenet_ssd.tflite"
+MODEL_PATH = "models/efficientdet_lite0.tflite"
 
 # Initialise the model interpreter (only runs if AI is available)
 interpreter = None
@@ -76,15 +75,17 @@ def run_inference(preprocessed_frame):
 # Minimum confidence to trust a detection
 CONFIDENCE_THRESHOLD = 0.5
 
-# Classes relevant to indoor navigation (COCO dataset labels)
+# Class IDs match EfficientDet-Lite0's embedded labelmap (COCO-90 scheme).
+# These were updated from COCO-80 during the model swap from MobileNet SSD
+# to EfficientDet-Lite0 on Pi deployment.
 RELEVANT_CLASSES = {
     0: "person",
-    56: "chair",
-    57: "couch",
-    58: "potted plant",
-    59: "bed",
-    60: "dining table",
-    72: "refrigerator",
+    61: "chair",
+    62: "couch",
+    63: "potted plant",
+    64: "bed",
+    66: "dining table",
+    81: "refrigerator",
 }
 
 def filter_detections(boxes, classes, scores):

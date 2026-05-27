@@ -6,6 +6,7 @@ import pyttsx3
 import queue
 import threading
 import subprocess
+import platform
 
 # Windows PowerShell speech settings (development-only stopgap)
 # To be removed when hardware arrives and pyttsx3 takes over
@@ -13,7 +14,10 @@ import subprocess
 # True  = use PowerShell subprocess (Windows development stopgap)
 # False = use pyttsx3 directly (Pi deployment, Linux)
 # Flip to False when deploying to the Raspberry Pi.
-USE_POWERSHELL_TTS = True
+# Speech backend selection (auto-detected from host OS).
+# Windows: PowerShell subprocess via System.Speech.Synthesis (dev workaround)
+# Linux:   pyttsx3 engine directly (Pi deployment path)
+USE_POWERSHELL_TTS = platform.system() == "Windows"
 PS_RATE = -1          # Range -10 to +10 (0 = default speaking rate)
 PS_VOLUME = 100       # Range 0 to 100
 SPEECH_RATE = 160          # Words per minute - slower than default for clarity
