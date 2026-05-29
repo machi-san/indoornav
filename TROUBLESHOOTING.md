@@ -228,3 +228,36 @@ This is classic **intermittent connection** behaviour — among the hardest hard
 4. Component swap tests are diagnostic only if the wiring is reliable; otherwise the test results are noise
 
 Resistor leads, jumper wire male ends, and sensor pins all have the same failure mode: thin metal that flexes and can sit in a hole without contacting the metal strip inside. Always push firmly until flush.
+
+## ALSA error 524 on Pi 5 Bookworm — missing PipeWire-ALSA bridge
+
+**Symptom:** Audio applications using ALSA (`aplay`, `speaker-test`, `pyttsx3` under the hood) fail with:
+This happens even when:
+- Bluetooth headset is paired and connected (`bluetoothctl` confirms)
+- PipeWire sees the headset as a sink (`wpctl status` shows it)
+- `paplay` (PulseAudio compat layer) plays sound through the headset successfully
+
+**Diagnosis:** Modern Raspberry Pi OS Bookworm uses PipeWire as its audio server, not ALSA directly. PipeWire ships with two compatibility layers:
+- `pipewire-pulse` — bridges PipeWire to PulseAudio APIs (`paplay`, etc.)
+- `pipewire-alsa` — bridges PipeWire to ALSA APIs (`aplay`, `speaker-test`, `pyttsx3`)
+
+The PulseAudio bridge is installed by default on most Bookworm images. The **ALSA bridge is not always installed**, which means ALSA-based applications can't find any working audio device and emit error 524.
+
+**Fix:**
+
+```bash
+sudo apt install -y pipewire-alsa
+sudo reboot
+```
+
+After reboot, ALSA-based applications route through PipeWire automatically. Verify with:
+
+```bash
+speaker-test -t wav -c 2
+```
+
+Should play "front left" / "front right" through the configured default sink.
+
+**Why this matters for the project:** `pyttsx3` (the speech engine in `speech.py`) uses `espeak` which uses ALSA. Without `pipewire-alsa`, every alert silently fails to play, even though `pyttsx3` itself reports no errors. The error only shows in noisy `aplay` warnings during `main.py` runs.
+
+**Lesson:** When debugging audio on modern Linux, check which audio server is active (PipeWire vs PulseAudio vs raw ALSA) and verify the appropriate bridges are installed. Apps that "should just work" may quietly use the wrong API.
