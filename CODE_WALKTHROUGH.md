@@ -1,5 +1,25 @@
 # 🛠 Code Walkthrough — Indoor Navigation Project
 
+> **Document scope (added [29/05/2026])**
+>
+> This walkthrough covers the project through Phase 3 (Tasks 1-11) — the foundational
+> software build, when a single linear walkthrough was the right tool for capturing
+> design decisions as they were made.
+>
+> From Phase 4 (deployment) onward, project documentation diversified into specialised
+> files, each with a defined purpose:
+>
+> - **`TROUBLESHOOTING.md`** — real-time decisions and fixes encountered during hardware
+>   integration (package compatibility, driver issues, intermittent connections, etc.)
+> - **`V2_ENHANCEMENTS.md`** — work deliberately scoped out of v1 with rationale and triggers
+> - **`CONCEPTS.md`** — durable engineering concepts the project relies on (threading,
+>   GIL, cooperative shutdown, etc.)
+> - **Git commit history** — fine-grained record of how the codebase evolved, with
+>   reasoning in commit messages
+>
+> Together these capture project work more effectively than a single growing walkthrough
+> could. For changes during Phases 4-5, see those files and the Git log.
+
 A block-by-block reference of all the code built collaboratively, organised by task and then by file. For each block: **what it does**, **why it's written that way**, and any **key design decisions** or **gotchas** worth remembering.
 
 This is meant as a study and report-writing aid — refer back to it whenever a decision needs justifying or a line needs re-explaining.
