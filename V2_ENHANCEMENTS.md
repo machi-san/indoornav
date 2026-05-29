@@ -148,6 +148,12 @@ This file exists for three reasons:
 - **Why deferred**: Depends on depth camera hardware (see Hardware section).
 - **What it improves**: Richer scene understanding. Distance-aware alerts ("Person 2 metres ahead"), ground discontinuity detection, occlusion reasoning.
 
+### Use custom exceptions for sensor errors instead of `None` sentinel
+- **What**: Replace the `None` return value used in `get_distance()` (and any other functions that signal "expected failure") with a custom exception hierarchy, e.g., `SensorTimeoutError`. Callers wrap in `try/except` rather than checking `if result is None`.
+- **Why deferred**: v1 uses a `None` sentinel because it's the simplest pattern that conveys "the sensor failed to produce a reading." Adding custom exceptions would introduce a new error-handling pattern that doesn't exist elsewhere in the codebase — and adding new patterns during deployment risks inconsistency and bugs. The sentinel works and is easy to test.
+- **What it improves**: Exceptions are the more "engineering correct" pattern for expected failures. They make failure cases impossible to silently miss (a caller that forgets to handle `None` may use it as a distance, producing nonsense; a caller that forgets to handle an exception crashes loudly, which is easier to spot). Exceptions also carry context (sensor name, failure reason, elapsed time) without needing additional return values.
+- **Trigger**: Action this when introducing further error-handling complexity (e.g., distinguishing between "timeout" and "echo never went high" vs "echo never went low"), or as part of a general v2 robustness pass.
+
 ---
 
 ## 📊 Evaluation and User Testing
