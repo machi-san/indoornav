@@ -32,6 +32,13 @@ ALERT_PRIORITY = {
     "stop":    2,
     "caution": 3,
 }
+# Rate limiting: minimum seconds between repeat alerts for the same (sensor, level) pair.
+# Prevents the speech queue from filling faster than it can drain in cluttered environments.
+ALERT_COOLDOWN = 3
+
+# Tracks the time of the last alert for each (sensor, level) combination.
+# Keys are tuples like ("north", "stop"); values are time.time() floats.
+last_alert_times = {}
 def check_alert(distance):
     if distance <= STOP_DISTANCE:     #<=50cm
         return "stop"
@@ -46,7 +53,14 @@ def setup_gpio():
         GPIO.setup(sensor["trig"], GPIO.OUT)
         GPIO.setup(sensor["echo"], GPIO.IN)
 
+# Timeout for echo wait loops (seconds). 40ms corresponds to ~7m max distance,
+# well beyond HC-SR04's reliable range (~4m). If echo doesn't respond within
+# this window, the sensor is considered to have failed for this cycle.
+ECHO_TIMEOUT = 0.04
+
 def get_distance(sensor_name):
+    """Read distance from the named sensor. Returns the distance in cm,
+    or None if the sensor failed to produce a valid echo within ECHO_TIMEOUT."""
     pins = SENSOR_PINS[sensor_name]
     trig = pins["trig"]
     echo = pins["echo"]
@@ -56,15 +70,27 @@ def get_distance(sensor_name):
     time.sleep(0.00001)
     GPIO.output(trig, False)
 
-    # Measure echo time
+    # Wait for echo to go HIGH (start of pulse)
+    pulse_start = time.time()
+    timeout_at = pulse_start + ECHO_TIMEOUT
     while GPIO.input(echo) == 0:
         pulse_start = time.time()
+        if pulse_start > timeout_at:
+            return None  # echo never went high - sensor unresponsive
+
+    # Wait for echo to go LOW (end of pulse)
+    pulse_end = pulse_start
+    timeout_at = pulse_start + ECHO_TIMEOUT
     while GPIO.input(echo) == 1:
         pulse_end = time.time()
+        if pulse_end > timeout_at:
+            return None  # echo stuck high - sensor malfunctioning
 
     # Calculate distance in centimetres
     echo_time = pulse_end - pulse_start
     distance = (echo_time * 34300) / 2
+
+    return round(distance, 1)
 
     return round(distance, 1)
 def cleanup():
@@ -80,12 +106,21 @@ def ultrasonic_loop():
         while not state.shutdown_flag:
             for sensor_name in SENSOR_PINS:
                 dist = get_distance(sensor_name)
+                if dist is None:
+                    print(f"{sensor_name}: timeout (no reading)")
+                    continue
                 alert_level = check_alert(dist)
                 if alert_level != "clear":
-                    phrase = ALERT_PHRASES[sensor_name][alert_level]
-                    priority = ALERT_PRIORITY[alert_level]
-                    speak(priority, phrase)
-                print(f"{sensor_name}: {dist} cm ({alert_level})")
+                    # Rate-limit: skip if this (sensor, level) was alerted within the cooldown window
+                    alert_key = (sensor_name, alert_level)
+                    now = time.time()
+                    last_time = last_alert_times.get(alert_key,0)
+                    if now - last_time >= ALERT_COOLDOWN:
+                        phrase = ALERT_PHRASES[sensor_name][alert_level]
+                        priority = ALERT_PRIORITY[alert_level]
+                        speak(priority, phrase)
+                        last_alert_times[alert_key] = now
+                print(f"{sensor_name}: {dist} cm ({alert_level}")
             time.sleep(0.5)
     finally:
         cleanup()

@@ -23,16 +23,50 @@ PS_VOLUME = 100       # Range 0 to 100
 SPEECH_RATE = 160          # Words per minute - slower than default for clarity
 SPEECH_VOLUME = 1.0        # Maximum volume for outdoor/noisy environments
 
+# Maximum number of alerts allowed in the speech queue at once.
+# Bounded queue prevents pile-up during sustained activity (e.g., cluttered indoor spaces).
+# When full, the lowest-priority item is dropped to make room for new alerts —
+# this preserves critical alerts (stairs, immediate obstacles) over contextual ones.
+MAX_QUEUE_SIZE = 5
+
 # Initialise the text-to-speech engine
 engine = pyttsx3.init()
 engine.setProperty('rate', SPEECH_RATE)    # words per minute (default ~200)
 engine.setProperty('volume', SPEECH_VOLUME)  # 0.0 to 1.0 (max for outdoor/noisy use)
 
 # Create the message queue
-alert_queue = queue.PriorityQueue()
+alert_queue = queue.PriorityQueue(maxsize=MAX_QUEUE_SIZE)
 
 def speak(priority, message):
-    alert_queue.put((priority, message))
+    """Queue an alert for speech. If the queue is full, the lowest-priority item
+    is evicted to make room — preserving critical alerts over contextual ones."""
+    try:
+        alert_queue.put_nowait((priority, message))
+    except queue.Full:
+        # Queue is full. Inspect the heap directly to find the worst (highest-number)
+        # priority item. If the new alert is better than the worst, evict and re-add.
+        with alert_queue.mutex:
+            heap = alert_queue.queue
+            if not heap:
+                return  # Edge case: somehow empty between check and lock
+            # The heap is ordered with smallest priority at index 0.
+            # Worst priority is the maximum across all items.
+            worst_index = max(range(len(heap)), key=lambda i: heap[i][0])
+            worst_priority = heap[worst_index][0]
+            if priority < worst_priority:
+                # New alert is more urgent than the worst pending one. Evict it.
+                heap.pop(worst_index)
+                # Restore heap invariant after removing a non-root element
+                import heapq
+                heapq.heapify(heap)
+                # Now there's room. Add the new alert through the normal path
+                # (re-lock the mutex is fine — same thread).
+        # If we evicted, re-try the put. If we didn't (new alert was the worst), drop it silently.
+        if priority < worst_priority:
+            try:
+                alert_queue.put_nowait((priority, message))
+            except queue.Full:
+                pass  # Shouldn't happen but degrade safely
 
 def process_queue():
     while True:
