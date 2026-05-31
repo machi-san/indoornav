@@ -89,11 +89,6 @@ This file exists for three reasons:
 - **Possible approaches**: (a) Train a small classifier on an indoor dataset that includes doors (e.g. Open Images, ADE20K), (b) Use a different pre-trained model whose label set includes doors, (c) Apply classical CV (rectangle detection) as a v1.5 stopgap.
 - **See also**: Same gap as stair detection — see Stair_Detection_Research_Outline.docx Section 7. The research paper scope could be broadened to "stair- and door-detection for indoor navigation assistance."
 
-### Replace remaining manual platform flag (`USE_MOCK_CAMERA`) with runtime OS detection
-- **What**: Replace the `USE_MOCK_CAMERA` manual flag in `main.py` with a runtime check using `platform.system()`, so the camera backend is selected automatically based on the host OS rather than requiring a manual flip on deployment.
-- **Why deferred**: v1 retains the manual flag because the mock camera is also useful for *debugging on the Pi itself* (e.g., when isolating a camera-vs-software issue, you may want to force mock mode on Linux). A pure OS-detection check would remove this debugging affordance. A better v2 design would combine an OS detection default with an environment-variable override.
-- **What it improves**: Eliminates a class of "forgot to flip the flag" deployment bugs. Aligns the camera module with the speech and vision modules, which already use platform detection (see commits on `speech.py` for `USE_POWERSHELL_TTS` and `vision.py` for the TFLite interpreter import).
-- **Trigger**: Action this when the mock camera is no longer needed for active debugging, or when implementing the v2 round of code-hygiene improvements.
 ---
 
 ## 🔊 Alert System
