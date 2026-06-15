@@ -25,6 +25,7 @@ This file exists for three reasons:
 - **Why deferred**: The Pi 5 requires a 5V/5A USB-C Power Delivery supply, and reliably sourcing a portable battery meeting this specification within the project's cost and form-factor constraints proved impractical for v1. The official adapter was adopted to guarantee stable power during prototype testing.
 - **What it improves**: Enables genuine mobile, wearable operation — completing the belt-clip form factor's intended use case. Required for any meaningful field testing, user studies, or real-world deployment scenarios.
 - **Trigger**: Action this when a suitable USB-C PD-compliant battery becomes available within budget, OR when field testing is planned.
+- **Trigger fired**: During the final week of the project, a 22W USB-C PD battery (10,000mAh) was identified that meets the Pi 5's power requirement and operates within the project's cost constraint. The item was promoted from v2 to v1.
 
 ### Depth camera
 - **What**: RGB-D, time-of-flight, or structured-light camera providing per-pixel distance data.
