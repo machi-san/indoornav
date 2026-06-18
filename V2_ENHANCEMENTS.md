@@ -205,6 +205,28 @@ This file exists for three reasons:
 - **What it improves**: Clean log output even with concurrent threads. Configurable log levels (debug/info/warning/error). Optional file output for post-run analysis. Standard practice for any production system.
 
 ---
+## 🔍 Discovered During Wear Testing
+
+### Ultrasonic-Vision Sensor Fusion for Named Alerts with Distance
+
+**Trigger condition:** Wear-testing in cluttered indoor environments revealed
+that the speech layer announces object type and direction (e.g., "person ahead")
+while the ultrasonic layer reports distance and direction in the terminal log
+but not in speech. When multiple obstacles fall within the same sensor cone,
+the user cannot disambiguate which obstacle triggered the alert.
+
+**Proposed enhancement:** Fuse the closest ultrasonic distance reading with
+the spatially-corresponding vision detection to produce a single combined
+alert (e.g., "chair 80cm north") rather than treating the two sensing
+modalities as independent alert sources.
+
+**Open design questions:**
+- How to spatially correlate a sensor cone with a vision bounding box
+- How to handle cases where ultrasonic detects an obstacle that vision
+  doesn't classify (uncluttered space vs unknown object)
+- Whether to fall back to "object 80cm north" when vision returns no match
+
+**Status:** v2 candidate
 
 ## 🔑 Pattern Summary
 
