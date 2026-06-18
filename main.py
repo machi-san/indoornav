@@ -2,6 +2,7 @@ import threading
 import time
 import cv2
 import state
+import platform
 
 from speech import start_speech_thread
 # ultrasonic_loop is imported inside main() conditionally, since RPi.GPIO would crash on Windows
@@ -20,10 +21,11 @@ latest_frame = None
 
 
 
-# ============================================================================
-# MOCK CAMERA (development-only stopgap until Pi camera arrives)
-# ============================================================================
-USE_MOCK_CAMERA = True   # Set False when Pi hardware arrives
+# Camera backend selection (auto-detected from host OS).
+# Linux:   real camera via picamera2 (Pi deployment)
+# Other:   mock camera generating synthetic frames (Windows dev, etc.)
+USE_MOCK_CAMERA = platform.system() != "Linux"
+
 
 def get_mock_frame():
     """Returns a black 480x640 frame for development testing.
@@ -46,23 +48,28 @@ def camera_loop():
             latest_frame = get_mock_frame()
             time.sleep(0.033)   # ~30 frames per second
     else:
-        # Hardware mode - capture from real camera
-        cap = cv2.VideoCapture(0)
-        if not cap.isOpened():
-            print("ERROR: Could not open camera. Exiting camera thread.")
-            return
-
+        # Hardware mode - capture from Pi camera via picamera2
+        from picamera2 import Picamera2
+        picam = Picamera2()
+        # Configure a low-resolution preview-style stream for AI inference.
+        # 640x480 BGR888 keeps frames small enough for real-time processing
+        # while matching OpenCV's expected colour order.
+        config = picam.create_preview_configuration(
+            main={"size": (640, 480), "format": "BGR888"}
+        )
+        picam.configure(config)
+        picam.start()
         try:
-            while not shutdown_flag:
-                ret, frame = cap.read()
-                if ret:
+            while not state.shutdown_flag:
+                frame = picam.capture_array()
+                if frame is not None:
                     latest_frame = frame
                 else:
                     print("WARNING: Failed to grab frame")
                     time.sleep(0.1)
         finally:
-            cap.release()
-            print("Camera released.")
+            picam.stop()
+            picam.close()
 
 # ============================================================================
 # AI DETECTION THREAD
